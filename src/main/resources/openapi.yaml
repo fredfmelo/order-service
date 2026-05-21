@@ -1,0 +1,15 @@
+openapi: 3.0.3
+
+info:
+  title: Order Service API
+  version: 1.0.0
+
+paths:
+  /test:
+    get:
+      tags:
+        - Test
+      operationId: test
+      responses:
+        '200':
+          description: Success
