@@ -22,7 +22,22 @@
     <properties>
         <java.version>21</java.version>
         <openapi-generator.version>7.15.0</openapi-generator.version>
+        <aws.sdk.version>2.32.12</aws.sdk.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>${aws.sdk.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
 
@@ -43,6 +58,32 @@
         </dependency>
 
         <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>dynamodb</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>dynamodb-enhanced</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sns</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sqs</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
@@ -52,6 +93,19 @@
 
     <build>
         <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
 
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -81,15 +135,9 @@
                                 ${project.build.directory}/generated-sources/openapi
                             </output>
 
-                            <addCompileSourceRoot>
-                                true
-                            </addCompileSourceRoot>
+                            <addCompileSourceRoot>true</addCompileSourceRoot>
 
                             <generatorName>spring</generatorName>
-
-                            <generateSupportingFiles>
-                                false
-                            </generateSupportingFiles>
 
                             <apiPackage>
                                 com.fredfmelo.orderservice.api
@@ -100,10 +148,12 @@
                             </modelPackage>
 
                             <configOptions>
+                                <sourceFolder>.</sourceFolder>
                                 <interfaceOnly>true</interfaceOnly>
                                 <delegatePattern>true</delegatePattern>
                                 <useSpringBoot3>true</useSpringBoot3>
                                 <useTags>true</useTags>
+                                <openApiNullable>false</openApiNullable>
                             </configOptions>
 
                         </configuration>

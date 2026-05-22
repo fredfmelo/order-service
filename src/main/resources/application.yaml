@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: order-service
+
+aws:
+  dynamodb:
+    table-name: ORDER
+
+  sns:
+    order-topic-arn: arn:aws:sns:sa-east-1:123456:order-topic
+
+  sqs:
+    payment-queue-url: http://payment-url
