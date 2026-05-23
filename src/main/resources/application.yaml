@@ -7,7 +7,6 @@ aws:
     table-name: ORDER
 
   sns:
-    order-topic-arn: arn:aws:sns:sa-east-1:123456:order-topic
-
+    order-topic-arn: arn:aws:sns:us-east-1:200849340204:order-events
   sqs:
     payment-queue-url: http://payment-url
