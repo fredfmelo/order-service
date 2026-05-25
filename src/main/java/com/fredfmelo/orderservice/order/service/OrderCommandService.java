@@ -15,6 +15,7 @@ import com.fredfmelo.orderservice.model.OrderItem;
 import com.fredfmelo.orderservice.order.domain.OrderEntity;
 import com.fredfmelo.orderservice.order.domain.OrderItemEntity;
 import com.fredfmelo.orderservice.order.domain.OrderStatus;
+import com.fredfmelo.orderservice.order.event.InventoryReservedEvent;
 import com.fredfmelo.orderservice.order.event.OrderCreatedEvent;
 import com.fredfmelo.orderservice.order.event.OrderItemEvent;
 import com.fredfmelo.orderservice.order.event.PaymentApprovedEvent;
@@ -46,10 +47,19 @@ public class OrderCommandService {
 
 
     public void approvePayment(PaymentApprovedEvent event) {
-        OrderEntity order = orderEntityRepository.findByPk("ORDER#" + event.orderId());
+        OrderEntity order = orderEntityRepository.findByPk(event.orderId());
 
         order.setStatus(OrderStatus.PAYMENT_APRROVED);
 
+        orderEntityRepository.save(order);
+    }
+
+
+    public void complete(InventoryReservedEvent event) {
+        OrderEntity order = orderEntityRepository.findByPk(event.orderId());
+    
+        order.setStatus(OrderStatus.COMPLETED);
+    
         orderEntityRepository.save(order);
     }
 
