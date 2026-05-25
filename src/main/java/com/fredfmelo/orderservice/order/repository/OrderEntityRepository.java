@@ -28,11 +28,11 @@ public class OrderEntityRepository {
         table().putItem(entity);
     }
 
-    public OrderEntity findByPk(String pk, String sk) {
+    public OrderEntity findByPk(String pk) {
 
         Key key = Key.builder()
                 .partitionValue(pk)
-                .sortValue(sk)
+                .sortValue("METADATA")
                 .build();
 
         return table().getItem(key);

@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fredfmelo.orderservice.api.OrderApi;
 import com.fredfmelo.orderservice.model.CreateOrderRequest;
 import com.fredfmelo.orderservice.model.CreateOrderResponse;
-import com.fredfmelo.orderservice.order.service.OrderComandService;
+import com.fredfmelo.orderservice.order.service.OrderCommandService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -14,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrdersController implements OrderApi {
 
-    private final OrderComandService orderComandService;
+    private final OrderCommandService orderComandService;
     
     @Override
     public ResponseEntity<CreateOrderResponse> createOrder(CreateOrderRequest createOrderRequest) {

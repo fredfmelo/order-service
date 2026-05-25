@@ -31,6 +31,6 @@ public class ServiceConfig {
     @Getter
     @Setter
     public static class Sqs {
-        private String paymentQueueUrl;
+        private String orderStateQueue;
     }
 }

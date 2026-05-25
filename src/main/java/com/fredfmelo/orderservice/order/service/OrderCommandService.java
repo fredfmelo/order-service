@@ -17,6 +17,7 @@ import com.fredfmelo.orderservice.order.domain.OrderItemEntity;
 import com.fredfmelo.orderservice.order.domain.OrderStatus;
 import com.fredfmelo.orderservice.order.event.OrderCreatedEvent;
 import com.fredfmelo.orderservice.order.event.OrderItemEvent;
+import com.fredfmelo.orderservice.order.event.PaymentApprovedEvent;
 import com.fredfmelo.orderservice.order.repository.OrderEntityRepository;
 import com.fredfmelo.orderservice.order.repository.OrderItemEntityRepository;
 
@@ -24,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class OrderComandService {
+public class OrderCommandService {
 
     private final OrderEntityRepository orderEntityRepository;
     private final OrderItemEntityRepository orderItemEntityRepository;
@@ -41,6 +42,15 @@ public class OrderComandService {
 
         CreateOrderResponse response = new CreateOrderResponse();
         return response;
+    }
+
+
+    public void approvePayment(PaymentApprovedEvent event) {
+        OrderEntity order = orderEntityRepository.findByPk("ORDER#" + event.orderId());
+
+        order.setStatus(OrderStatus.PAYMENT_APRROVED);
+
+        orderEntityRepository.save(order);
     }
 
     private void buildSnsEventAndPublish(OrderEntity orderEntity, List<OrderItemEntity> items) {
