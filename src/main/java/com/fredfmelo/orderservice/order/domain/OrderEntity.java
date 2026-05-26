@@ -21,11 +21,9 @@ import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbSortK
 public class OrderEntity {
 
     private String pk;
-
     private String sk;
 
     private UUID customerId;
-
     private OrderStatus status;
 
     @DynamoDbPartitionKey
