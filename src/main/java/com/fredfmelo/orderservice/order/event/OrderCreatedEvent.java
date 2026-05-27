@@ -4,12 +4,12 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-public record OrderCreatedEvent(
+import com.fredfmelo.orderservice.idempotency.event.IdempotentEvent;
 
-        UUID eventId,
-        String eventType,
-        Instant occurredAt,
-        String orderId,
-        UUID customerId,
-        List<OrderItemEvent> items
-) {}
+public record OrderCreatedEvent(UUID eventId,
+                String eventType,
+                Instant occurredAt,
+                String orderId,
+                UUID customerId,
+                List<OrderItemEvent> items) implements IdempotentEvent {
+}

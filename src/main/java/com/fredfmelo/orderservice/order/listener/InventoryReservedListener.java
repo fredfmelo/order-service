@@ -2,6 +2,7 @@ package com.fredfmelo.orderservice.order.listener;
 
 import org.springframework.stereotype.Component;
 
+import com.fredfmelo.orderservice.idempotency.executor.IdempotentExecutor;
 import com.fredfmelo.orderservice.order.event.InventoryReservedEvent;
 import com.fredfmelo.orderservice.order.service.OrderCommandService;
 
@@ -15,15 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 public class InventoryReservedListener {
 
     private final OrderCommandService orderCommandService;
+    private final IdempotentExecutor idempotentExecutor;
 
     @SqsListener("${aws.sqs.order-completion-queue}")
     public void consume(InventoryReservedEvent event) {
-
-        log.info(
-                "Inventory reserved order={}",
-                event.orderId()
-        );
-
-        orderCommandService.complete(event);
+        idempotentExecutor.execute(event, () -> orderCommandService.complete(event));
     }
 }
