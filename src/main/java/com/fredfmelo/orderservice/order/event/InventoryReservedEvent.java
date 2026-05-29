@@ -5,8 +5,9 @@ import java.util.UUID;
 
 import com.fredfmelo.orderservice.idempotency.event.IdempotentEvent;
 
-public record InventoryReservedEvent(
-                UUID eventId,
-                String eventType,
-                Instant occurredAt,
-                String orderId) implements IdempotentEvent {}
+public record InventoryReservedEvent(UUID eventId,
+        String traceId,
+        String eventType,
+        Instant occurredAt,
+        String orderId) implements IdempotentEvent {
+}

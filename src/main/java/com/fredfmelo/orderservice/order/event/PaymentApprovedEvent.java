@@ -6,7 +6,8 @@ import java.util.UUID;
 import com.fredfmelo.orderservice.idempotency.event.IdempotentEvent;
 
 public record PaymentApprovedEvent(UUID eventId,
-                String eventType,
-                Instant occurredAt,
-                String orderId) implements IdempotentEvent {
+        String traceId,
+        String eventType,
+        Instant occurredAt,
+        String orderId) implements IdempotentEvent {
 }

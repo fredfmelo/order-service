@@ -1,7 +1,6 @@
 package com.fredfmelo.orderservice.order.service;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,7 +19,8 @@ import com.fredfmelo.orderservice.order.event.OrderCreatedEvent;
 import com.fredfmelo.orderservice.order.event.OrderItemEvent;
 import com.fredfmelo.orderservice.order.event.PaymentApprovedEvent;
 import com.fredfmelo.orderservice.order.repository.OrderEntityRepository;
-import com.fredfmelo.orderservice.order.repository.OrderItemEntityRepository;
+import com.fredfmelo.orderservice.order.repository.OrderTransactionRepository;
+import com.fredfmelo.orderservice.outbox.entity.OutboxEntity;
 import com.fredfmelo.orderservice.outbox.service.OutboxService;
 
 import lombok.RequiredArgsConstructor;
@@ -32,19 +32,22 @@ public class OrderCommandService {
     private static final String ENTITY_TYPE_ORDER_ITEM = "ORDER_ITEM";
 
     private final OrderEntityRepository orderEntityRepository;
-    private final OrderItemEntityRepository orderItemEntityRepository;
+    private final OrderTransactionRepository transactionRepository;
     private final OutboxService outboxService;
 
     public CreateOrderResponse createOrder(CreateOrderRequest request) {
         validateRequest(request);
 
-        OrderEntity orderEntity = createAndSaveOrder(request);
+        OrderEntity order = buildOrder(request);
+        List<OrderItemEntity> items = buildItems(request.getItems(), order.getPk());
 
-        List<OrderItemEntity> items = createAndSaveOrderItem(
-                request.getItems(),
-                orderEntity.getPk());
+        OrderCreatedEvent event = buildOrderCreatedEvent(order, items);
 
-        createOutboxEvent(orderEntity, items);
+        OutboxEntity outbox = outboxService.buildEntity(event.eventId().toString(),
+                event.eventType(),
+                event);
+
+        transactionRepository.save(order, items, outbox);
 
         return new CreateOrderResponse();
     }
@@ -65,61 +68,47 @@ public class OrderCommandService {
         orderEntityRepository.save(order);
     }
 
-    private void createOutboxEvent(OrderEntity orderEntity, List<OrderItemEntity> items) {
+    private OrderEntity buildOrder(CreateOrderRequest request) {
+        return OrderEntity.builder()
+                .pk("ORDER#" + UUID.randomUUID())
+                .sk("METADATA")
+                .status(OrderStatus.CREATED)
+                .customerId(request.getCustomerId())
+                .build();
+    }
+
+    private List<OrderItemEntity> buildItems(List<OrderItem> orderItems, String orderPk) {
+        AtomicInteger itemIndex = new AtomicInteger(1);
+
+        return orderItems.stream()
+                .map(item -> OrderItemEntity.builder()
+                        .pk(orderPk)
+                        .sk("ITEM#%03d".formatted(itemIndex.getAndIncrement()))
+                        .entityType(ENTITY_TYPE_ORDER_ITEM)
+                        .productId(item.getProductId())
+                        .quantity(item.getQuantity())
+                        .build())
+                .toList();
+    }
+
+    private OrderCreatedEvent buildOrderCreatedEvent(
+            OrderEntity order,
+            List<OrderItemEntity> items) {
+
         List<OrderItemEvent> itemEvents = items.stream()
                 .map(item -> new OrderItemEvent(
                         item.getProductId(),
                         item.getQuantity()))
                 .toList();
 
-        OrderCreatedEvent event = new OrderCreatedEvent(
+        return new OrderCreatedEvent(
                 UUID.randomUUID(),
+                UUID.randomUUID().toString(),
                 "ORDER_CREATED",
                 Instant.now(),
-                orderEntity.getPk().replace("ORDER#", ""),
-                orderEntity.getCustomerId(),
+                order.getPk().replace("ORDER#", ""),
+                order.getCustomerId(),
                 itemEvents);
-
-        outboxService.save(event.eventId().toString(),
-                event.eventType(),
-                event);
-    }
-
-    private OrderEntity createAndSaveOrder(CreateOrderRequest request) {
-        String pk = "ORDER#" + UUID.randomUUID();
-
-        OrderEntity entity = OrderEntity.builder()
-                .pk(pk)
-                .sk("METADATA")
-                .status(OrderStatus.CREATED)
-                .customerId(request.getCustomerId())
-                .build();
-
-        orderEntityRepository.save(entity);
-
-        return entity;
-    }
-
-    private List<OrderItemEntity> createAndSaveOrderItem(List<OrderItem> orderItemList, String orderPk) {
-        AtomicInteger itemIndex = new AtomicInteger(1);
-        List<OrderItemEntity> items = new ArrayList<>();
-
-        orderItemList.forEach(item -> {
-
-            OrderItemEntity entity = OrderItemEntity.builder()
-                    .pk(orderPk)
-                    .sk("ITEM#%03d".formatted(itemIndex.getAndIncrement()))
-                    .entityType(ENTITY_TYPE_ORDER_ITEM)
-                    .quantity(item.getQuantity())
-                    .productId(item.getProductId())
-                    .build();
-
-            orderItemEntityRepository.save(entity);
-
-            items.add(entity);
-        });
-
-        return items;
     }
 
     private void validateRequest(CreateOrderRequest request) {

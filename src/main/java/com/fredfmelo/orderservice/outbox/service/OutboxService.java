@@ -24,6 +24,10 @@ public class OutboxService {
     private final ObjectMapper objectMapper;
 
     public void save(String eventId, String eventType, Object payload) {
+        repository.save(buildEntity(eventId, eventType, payload));
+    }
+
+    public OutboxEntity buildEntity(String eventId, String eventType, Object payload) {
 
         try {
             OutboxEntity entity = new OutboxEntity();
@@ -37,11 +41,11 @@ public class OutboxService {
             entity.setCreatedAt(Instant.now());
 
             entity.setPayload(objectMapper.writeValueAsString(payload));
-
-            repository.save(entity);
-
+            
+            return entity;
         } catch (JsonProcessingException ex) {
             throw new TechnicalException("Error serializing outbox payload", ex);
         }
     }
+    
 }

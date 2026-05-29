@@ -28,7 +28,6 @@ public class OrderEntityRepository {
     }
 
     public OrderEntity findByPk(String orderId) {
-
         Key key = Key.builder()
                 .partitionValue("ORDER#" + orderId)
                 .sortValue("METADATA")

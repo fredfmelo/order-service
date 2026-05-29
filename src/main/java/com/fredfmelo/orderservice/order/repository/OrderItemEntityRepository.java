@@ -30,9 +30,7 @@ public class OrderItemEntityRepository {
         table().putItem(entity);
     }
 
-    public OrderItemEntity findByKey(
-            String pk,
-            String sk) {
+    public OrderItemEntity findByKey(String pk, String sk) {
 
         Key key = Key.builder()
                 .partitionValue(pk)
