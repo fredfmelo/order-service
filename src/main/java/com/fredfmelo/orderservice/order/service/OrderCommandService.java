@@ -24,8 +24,10 @@ import com.fredfmelo.orderservice.outbox.entity.OutboxEntity;
 import com.fredfmelo.orderservice.outbox.service.OutboxService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class OrderCommandService {
 
@@ -43,9 +45,7 @@ public class OrderCommandService {
 
         OrderCreatedEvent event = buildOrderCreatedEvent(order, items);
 
-        OutboxEntity outbox = outboxService.buildEntity(event.eventId().toString(),
-                event.eventType(),
-                event);
+        OutboxEntity outbox = outboxService.buildEntity(event);
 
         transactionRepository.save(order, items, outbox);
 

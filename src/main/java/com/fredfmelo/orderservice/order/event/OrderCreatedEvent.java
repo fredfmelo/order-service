@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-import com.fredfmelo.orderservice.idempotency.event.IdempotentEvent;
+import com.fredfmelo.orderservice.common.event.Event;
 
 public record OrderCreatedEvent(UUID eventId,
         String traceId,
@@ -12,5 +12,5 @@ public record OrderCreatedEvent(UUID eventId,
         Instant occurredAt,
         String orderId,
         UUID customerId,
-        List<OrderItemEvent> items) implements IdempotentEvent {
+        List<OrderItemEvent> items) implements Event {
 }

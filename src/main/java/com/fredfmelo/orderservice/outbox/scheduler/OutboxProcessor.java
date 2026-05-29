@@ -3,6 +3,7 @@ package com.fredfmelo.orderservice.outbox.scheduler;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.fredfmelo.orderservice.common.exception.TechnicalException;
 import com.fredfmelo.orderservice.outbox.entity.OutboxEntity;
 import com.fredfmelo.orderservice.outbox.publisher.OutboxEventPublisher;
 import com.fredfmelo.orderservice.outbox.repository.OutboxRepository;
@@ -25,19 +26,33 @@ public class OutboxProcessor {
     public void process() {
         var pendingEvents = repository.findPending();
 
-        for (OutboxEntity event : pendingEvents) {
-            log.info("[SCHEDULER] Found {} pending events", pendingEvents.size());
+        if (!pendingEvents.isEmpty()) {
+            log.info("Found {} pending outbox events", pendingEvents.size());
+        }
 
-            try {
-                publisher.publish(event.getPayload(), event.getEventType());
+        pendingEvents.forEach(this::processEvent);
+    }
 
-                updateAndSaveOutbox(event);
+    private void processEvent(OutboxEntity event) {
+        long startedAt = System.currentTimeMillis();
 
-                log.info("Outbox processed={}", event.getPk());
+        String eventLog = "traceId={}, eventId={}, eventType={}".formatted(event.getTraceId(),
+        event.getEventId(),
+        event.getEventType());
 
-            } catch (Exception ex) {
-                log.error("Error processing outbox={}", event.getPk(), ex);
-            }
+        try {
+            log.info("Publishing event: {}", eventLog);
+
+            publisher.publish(event.getPayload(), event.getEventType());
+
+            updateAndSaveOutbox(event);
+
+            long durationMs = System.currentTimeMillis() - startedAt;
+
+            log.info("Event published: {}, durationMs={}", eventLog, durationMs);
+
+        } catch (Exception ex) {
+            throw new TechnicalException("Error publishing event: " + eventLog, ex);
         }
     }
 

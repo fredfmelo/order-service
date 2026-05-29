@@ -20,10 +20,13 @@ public class OutboxEntity {
     private String pk;
     private String sk;
 
+    private String eventId;
+    private String traceId;
     private String eventType;
     private String payload;
     private String status;
     private Instant createdAt;
+    
 
     private String outboxStatusPk;
     private String outboxCreatedAtSk;
