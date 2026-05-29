@@ -1,0 +1,152 @@
+# Event Drive Core
+
+Shared infrastructure library for building event-driven microservices with Spring Boot, DynamoDB, SNS, and SQS.
+
+This library provides reusable implementations of common distributed systems patterns, allowing services to focus on business logic instead of infrastructure concerns.
+
+## Features
+
+### Event Contract
+
+Standardized event interface for all domain events.
+
+```java
+public interface Event {
+
+    UUID eventId();
+
+    String traceId();
+
+    String eventType();
+}
+```
+
+### Outbox Pattern
+
+Reliable event publishing through DynamoDB-backed Outbox.
+
+Features:
+
+* Transactional Outbox support
+* SNS publishing
+* Scheduled processing
+* Event tracking
+* Processing metrics
+* TraceId propagation
+
+### Idempotency Pattern
+
+Safe event consumption with duplicate message protection.
+
+Features:
+
+* Event deduplication
+* DynamoDB persistence
+* Generic execution model
+* Processing metrics
+* Traceable event handling
+
+### AWS Integration
+
+Built-in support for:
+
+* DynamoDB
+* SNS
+* SQS
+
+## Installation
+
+```xml
+<dependency>
+    <groupId>com.fredfmelo</groupId>
+    <artifactId>event-drive-core</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+</dependency>
+```
+
+## Usage
+
+### Create an Event
+
+```java
+public record PaymentApprovedEvent(
+        UUID eventId,
+        String traceId,
+        String eventType,
+        String orderId)
+        implements Event {
+}
+```
+
+### Outbox
+
+```java
+OutboxEntity outboxEntity =
+        outboxService.create(event);
+
+outboxRepository.save(outboxEntity);
+```
+
+### Idempotency
+
+```java
+idempotentExecutor.execute(
+        event,
+        () -> paymentService.process(event)
+);
+```
+
+## Logging
+
+The library promotes consistent logging across services.
+
+Example:
+
+```text
+Event received: traceId=abc123, eventId=123, eventType=PAYMENT_APPROVED
+
+Event processed: traceId=abc123, eventId=123, eventType=PAYMENT_APPROVED, durationMs=42
+
+Publishing event: traceId=abc123, eventId=123, eventType=PAYMENT_APPROVED
+
+Event published: traceId=abc123, eventId=123, eventType=PAYMENT_APPROVED, durationMs=15
+```
+
+## Architecture Patterns
+
+This library implements:
+
+* Outbox Pattern
+* Transactional Outbox Pattern
+* Idempotency Pattern
+* Event-Driven Architecture
+
+## Requirements
+
+* Java 21+
+* Spring Boot 3.5+
+* DynamoDB
+* SNS
+* SQS
+
+## Status
+
+Active development.
+
+Current focus:
+
+* Event infrastructure
+* Outbox processing
+* Idempotent consumers
+* AWS integrations
+
+Future roadmap:
+
+* Auto-configuration
+* Observability support
+* Distributed tracing
+* Metrics integration
+* Library starter modules
+
+```
+```
