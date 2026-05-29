@@ -6,10 +6,10 @@ import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 
+import com.fredfmelo.eventdrivencore.outbox.entity.OutboxEntity;
 import com.fredfmelo.orderservice.config.ServiceConfig;
 import com.fredfmelo.orderservice.order.domain.OrderEntity;
 import com.fredfmelo.orderservice.order.domain.OrderItemEntity;
-import com.fredfmelo.orderservice.outbox.entity.OutboxEntity;
 
 import lombok.RequiredArgsConstructor;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;

@@ -4,9 +4,9 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import com.fredfmelo.orderservice.common.exception.TechnicalException;
+import com.fredfmelo.eventdrivencore.exception.TechnicalException;
+import com.fredfmelo.eventdrivencore.outbox.publisher.OutboxEventPublisher;
 import com.fredfmelo.orderservice.config.ServiceConfig;
-import com.fredfmelo.orderservice.outbox.publisher.OutboxEventPublisher;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -2,7 +2,7 @@ package com.fredfmelo.orderservice.order.listener;
 
 import org.springframework.stereotype.Component;
 
-import com.fredfmelo.orderservice.idempotency.executor.IdempotentExecutor;
+import com.fredfmelo.eventdrivencore.idempotency.executor.IdempotentExecutor;
 import com.fredfmelo.orderservice.order.event.InventoryReservedEvent;
 import com.fredfmelo.orderservice.order.service.OrderCommandService;
 

@@ -7,7 +7,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.stereotype.Service;
 
-import com.fredfmelo.orderservice.common.exception.BusinessException;
+import com.fredfmelo.eventdrivencore.exception.BusinessException;
+import com.fredfmelo.eventdrivencore.outbox.entity.OutboxEntity;
+import com.fredfmelo.eventdrivencore.outbox.service.OutboxService;
 import com.fredfmelo.orderservice.model.CreateOrderRequest;
 import com.fredfmelo.orderservice.model.CreateOrderResponse;
 import com.fredfmelo.orderservice.model.OrderItem;
@@ -20,8 +22,6 @@ import com.fredfmelo.orderservice.order.event.OrderItemEvent;
 import com.fredfmelo.orderservice.order.event.PaymentApprovedEvent;
 import com.fredfmelo.orderservice.order.repository.OrderEntityRepository;
 import com.fredfmelo.orderservice.order.repository.OrderTransactionRepository;
-import com.fredfmelo.orderservice.outbox.entity.OutboxEntity;
-import com.fredfmelo.orderservice.outbox.service.OutboxService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

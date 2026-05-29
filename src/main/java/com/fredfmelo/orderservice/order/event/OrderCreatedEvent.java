@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-import com.fredfmelo.orderservice.common.event.Event;
+import com.fredfmelo.eventdrivencore.event.Event;
 
 public record OrderCreatedEvent(UUID eventId,
         String traceId,
