@@ -38,7 +38,7 @@ public class OrderEventPublisher implements OutboxEventPublisher{
 	public void publish(String payload, String eventType) {
         try {
             PublishRequest request = PublishRequest.builder()
-                    .topicArn(config.getSns().getOrderTopicArn())
+                    .topicArn(config.getAws().getSns().getOrderTopicArn())
                     .message(payload)
                     .messageAttributes(buildAttributes(eventType))
                     .build();

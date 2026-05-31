@@ -19,7 +19,7 @@ public class OrderEntityRepository {
     private final DynamoDbEnhancedClient client;
 
     private DynamoDbTable<OrderEntity> table() {
-        return client.table(serviceConfig.getDynamodb().getTableName(),
+        return client.table(serviceConfig.getAws().getDynamodb().getTableName(),
                 TableSchema.fromBean(OrderEntity.class));
     }
 

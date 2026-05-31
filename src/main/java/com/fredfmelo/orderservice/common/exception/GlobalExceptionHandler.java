@@ -23,8 +23,7 @@ public class GlobalExceptionHandler {
         ErrorResponse response = new ErrorResponse(
                 Instant.now(),
                 ex.getHttpStatusCode(),
-                ex.getMessage()
-        );
+                ex.getMessage());
 
         return ResponseEntity
                 .status(HttpStatusCode.valueOf(ex.getHttpStatusCode()))
@@ -50,8 +49,7 @@ public class GlobalExceptionHandler {
         ErrorResponse response = new ErrorResponse(
                 Instant.now(),
                 500,
-                "Internal server error"
-        );
+                "Internal server error");
 
         return ResponseEntity
                 .internalServerError()

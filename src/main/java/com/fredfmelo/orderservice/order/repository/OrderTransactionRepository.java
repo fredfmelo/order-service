@@ -45,7 +45,7 @@ public class OrderTransactionRepository {
 
         return TransactWriteItem.builder()
                 .put(Put.builder()
-                        .tableName(serviceConfig.getDynamodb().getTableName())
+                        .tableName(serviceConfig.getAws().getDynamodb().getTableName())
                         .item(item)
                         .build())
                 .build();

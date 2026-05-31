@@ -22,7 +22,7 @@ public class OrderItemEntityRepository {
     private final ServiceConfig serviceConfig;
 
     private DynamoDbTable<OrderItemEntity> table() {
-        return client.table(serviceConfig.getDynamodb().getTableName(),
+        return client.table(serviceConfig.getAws().getDynamodb().getTableName(),
                 TableSchema.fromBean(OrderItemEntity.class));
     }
 
