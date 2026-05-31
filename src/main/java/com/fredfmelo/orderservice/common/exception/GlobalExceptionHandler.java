@@ -18,7 +18,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusiness(BusinessException ex) {
-
         log.error(ex.getMessage(), ex);
 
         ErrorResponse response = new ErrorResponse(
@@ -33,7 +32,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(TechnicalException.class)
-    public ResponseEntity<ErrorResponse> handleBusiness(TechnicalException ex) {
+    public ResponseEntity<ErrorResponse> handleTechnical(TechnicalException ex) {
         log.error(ex.getMessage(), ex);
 
         ErrorResponse response = new ErrorResponse(
@@ -47,9 +46,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleUnexpected(
-            Exception ex) {
-
+    public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex) {
         ErrorResponse response = new ErrorResponse(
                 Instant.now(),
                 500,
