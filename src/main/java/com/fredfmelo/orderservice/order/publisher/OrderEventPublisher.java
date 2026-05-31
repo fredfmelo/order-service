@@ -1,4 +1,4 @@
-package com.fredfmelo.orderservice.infrastructure.messaging;
+package com.fredfmelo.orderservice.order.publisher;
 
 import java.util.Map;
 
@@ -21,34 +21,32 @@ import software.amazon.awssdk.services.sns.model.PublishRequest;
 public class OrderEventPublisher implements OutboxEventPublisher{
 
     private static final String EVENT_TYPE = "eventType";
-    private static final String STRING = "String";
+    private static final String DATA_TYPE_STRING = "String";
 
     private final SnsClient snsClient;
-    private final ServiceConfig config;
-
-    private Map<String, MessageAttributeValue> buildAttributes(String eventType) {
-        return Map.of(EVENT_TYPE,
-                MessageAttributeValue.builder()
-                        .dataType(STRING)
-                        .stringValue(eventType)
-                        .build());
-    }
+    private final ServiceConfig serviceConfig;
 
 	@Override
 	public void publish(String payload, String eventType) {
         try {
             PublishRequest request = PublishRequest.builder()
-                    .topicArn(config.getAws().getSns().getOrderTopicArn())
+                    .topicArn(serviceConfig.getAws().getSns().getOrderTopicArn())
                     .message(payload)
                     .messageAttributes(buildAttributes(eventType))
                     .build();
 
             snsClient.publish(request);
-
-            log.info("Published eventType={}", eventType);
-
         } catch (SdkException ex) {
-            throw new TechnicalException("Error publishing SNS event", ex);
+            throw new TechnicalException("Error publishing event", ex);
         }
 	}
+
+    private Map<String, MessageAttributeValue> buildAttributes(String eventType) {
+        return Map.of(EVENT_TYPE,
+                MessageAttributeValue.builder()
+                        .dataType(DATA_TYPE_STRING)
+                        .stringValue(eventType)
+                        .build());
+    }
+
 }
