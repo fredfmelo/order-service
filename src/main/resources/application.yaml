@@ -2,6 +2,11 @@ spring:
   application:
     name: order-service
 
+server:
+  port: 8080
+  servlet:
+    context-path: /api/order-service/v1
+
 management:
   endpoints:
     web:
