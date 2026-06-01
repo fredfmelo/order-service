@@ -2,7 +2,7 @@ FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
-COPY target/order-service-0.0.1-SNAPSHOT.jar app.jar
+COPY target/*.jar app.jar
 
 EXPOSE 8080
 
