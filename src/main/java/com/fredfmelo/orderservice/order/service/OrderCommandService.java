@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.fredfmelo.eventdrivencore.exception.BusinessException;
@@ -37,10 +38,11 @@ public class OrderCommandService {
     private final OrderTransactionRepository transactionRepository;
     private final OutboxService outboxService;
 
-    public CreateOrderResponse createOrder(CreateOrderRequest request) {
-        validateRequest(request);
+    public CreateOrderResponse createOrder(CreateOrderRequest request, UUID userId) {
+        validateRequest(request, userId);
 
-        OrderEntity order = buildOrder(request);
+        OrderEntity order = buildOrder(userId);
+        
         List<OrderItemEntity> items = buildItems(request.getItems(), order.getPk());
 
         OrderCreatedEvent event = buildOrderCreatedEvent(order, items);
@@ -68,12 +70,12 @@ public class OrderCommandService {
         orderEntityRepository.save(order);
     }
 
-    private OrderEntity buildOrder(CreateOrderRequest request) {
+    private OrderEntity buildOrder(UUID userId) {
         return OrderEntity.builder()
                 .pk("ORDER#" + UUID.randomUUID())
                 .sk("METADATA")
                 .status(OrderStatus.CREATED)
-                .customerId(request.getCustomerId())
+                .customerId(userId)
                 .build();
     }
 
@@ -111,13 +113,13 @@ public class OrderCommandService {
                 itemEvents);
     }
 
-    private void validateRequest(CreateOrderRequest request) {
-        if (request.getCustomerId() == null) {
-            throw new BusinessException("Customer ID is required");
+    private void validateRequest(CreateOrderRequest request, UUID userId) {
+        if (userId == null) {
+            throw new BusinessException("Customer ID is required", HttpStatus.FORBIDDEN.value());
         }
 
         if (request.getItems().isEmpty()) {
-            throw new BusinessException("Items are required");
+            throw new BusinessException("Order items are required");
         }
     }
 }
