@@ -38,11 +38,13 @@ public class OrderCommandService {
     private final OrderTransactionRepository transactionRepository;
     private final OutboxService outboxService;
 
-    public CreateOrderResponse createOrder(CreateOrderRequest request, UUID userId) {
-        validateRequest(request, userId);
+    public CreateOrderResponse createOrder(CreateOrderRequest request, UUID customerId) {
+        validateRequest(request, customerId);
 
-        OrderEntity order = buildOrder(userId);
-        
+        validateCustomerOrderLimite(customerId);
+
+        OrderEntity order = buildOrder(customerId);
+
         List<OrderItemEntity> items = buildItems(request.getItems(), order.getPk());
 
         OrderCreatedEvent event = buildOrderCreatedEvent(order, items);
@@ -52,6 +54,13 @@ public class OrderCommandService {
         transactionRepository.save(order, items, outbox);
 
         return new CreateOrderResponse();
+    }
+
+    private void validateCustomerOrderLimite(UUID custumerId) {
+        if (orderEntityRepository.countOrdersCreatedToday(custumerId) >= 5) {
+            throw new BusinessException("You've exceeded the daily limit of orders placed (5)",
+                    HttpStatus.TOO_MANY_REQUESTS.value());
+        }
     }
 
     public void approvePayment(PaymentApprovedEvent event) {
@@ -71,12 +80,15 @@ public class OrderCommandService {
     }
 
     private OrderEntity buildOrder(UUID userId) {
-        return OrderEntity.builder()
-                .pk("ORDER#" + UUID.randomUUID())
-                .sk("METADATA")
-                .status(OrderStatus.CREATED)
-                .customerId(userId)
-                .build();
+        OrderEntity order = new OrderEntity();
+
+        order.setPk("ORDER#" + UUID.randomUUID());
+        order.setSk("METADATA");
+        order.setStatus(OrderStatus.CREATED);
+        order.setCustomerId(userId);
+        order.setCreatedAt(Instant.now());
+
+        return order;
     }
 
     private List<OrderItemEntity> buildItems(List<OrderItem> orderItems, String orderPk) {

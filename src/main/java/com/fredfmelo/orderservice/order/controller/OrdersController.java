@@ -17,7 +17,7 @@ public class OrdersController implements OrderApi {
 
     private final OrderCommandService orderComandService;
     private final UserContext userContext;
-    
+
     @Override
     public ResponseEntity<CreateOrderResponse> createOrder(CreateOrderRequest createOrderRequest) {
         return ResponseEntity.ok(orderComandService.createOrder(createOrderRequest, userContext.getUserId()));

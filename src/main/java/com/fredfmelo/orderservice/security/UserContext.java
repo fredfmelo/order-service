@@ -2,9 +2,12 @@ package com.fredfmelo.orderservice.security;
 
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
+import com.fredfmelo.eventdrivencore.exception.BusinessException;
 
 @Component
 public class UserContext {
@@ -14,7 +17,11 @@ public class UserContext {
     }
 
     public UUID getUserId() {
-        return UUID.fromString(getAtrributes().getRequest().getHeader("X-User-Id"));
+        try {
+            return UUID.fromString(getAtrributes().getRequest().getHeader("X-User-Id"));
+        } catch (Exception ex) {
+            throw new BusinessException("Error getting user from token jwt", HttpStatus.FORBIDDEN.value());
+        }
     }
 
     public String getEmail() {
