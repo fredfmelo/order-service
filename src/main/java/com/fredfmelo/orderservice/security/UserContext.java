@@ -8,6 +8,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.fredfmelo.eventdrivencore.exception.BusinessException;
+import com.fredfmelo.orderservice.order.domain.Role;
 
 @Component
 public class UserContext {
@@ -28,8 +29,12 @@ public class UserContext {
         return getAtrributes().getRequest().getHeader("X-User-Email");
     }
 
-    public String getRole() {
-        return getAtrributes().getRequest().getHeader("X-User-Role");
+    public Role getRole() {
+        try {
+            return Role.valueOf(getAtrributes().getRequest().getHeader("X-User-Role"));
+        } catch (Exception ex) {
+            throw new BusinessException("Error getting role from token jwt", HttpStatus.FORBIDDEN.value());
+        }
     }
 
 }

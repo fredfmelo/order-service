@@ -17,12 +17,14 @@ import com.fredfmelo.orderservice.model.OrderItem;
 import com.fredfmelo.orderservice.order.domain.OrderEntity;
 import com.fredfmelo.orderservice.order.domain.OrderItemEntity;
 import com.fredfmelo.orderservice.order.domain.OrderStatus;
+import com.fredfmelo.orderservice.order.domain.Role;
 import com.fredfmelo.orderservice.order.event.InventoryReservedEvent;
 import com.fredfmelo.orderservice.order.event.OrderCreatedEvent;
 import com.fredfmelo.orderservice.order.event.OrderItemEvent;
 import com.fredfmelo.orderservice.order.event.PaymentApprovedEvent;
 import com.fredfmelo.orderservice.order.repository.OrderEntityRepository;
 import com.fredfmelo.orderservice.order.repository.OrderTransactionRepository;
+import com.fredfmelo.orderservice.security.UserContext;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,25 +40,29 @@ public class OrderCommandService {
     private final OrderTransactionRepository transactionRepository;
     private final OutboxService outboxService;
 
-    public CreateOrderResponse createOrder(CreateOrderRequest request, UUID customerId) {
-        validateRequest(request, customerId);
+    public CreateOrderResponse createOrder(CreateOrderRequest request, UserContext userContext) {
+        UUID customerId = userContext.getUserId();
 
-        validateCustomerOrderLimite(customerId);
+        validateRequest(request, customerId);
+        validateDailyOrderLimit(customerId, userContext.getRole());
 
         OrderEntity order = buildOrder(customerId);
-
         List<OrderItemEntity> items = buildItems(request.getItems(), order.getPk());
 
         OrderCreatedEvent event = buildOrderCreatedEvent(order, items);
-
         OutboxEntity outbox = outboxService.buildEntity(event);
 
         transactionRepository.save(order, items, outbox);
-
-        return new CreateOrderResponse();
+        return new CreateOrderResponse()
+                .orderId(order.getPk())
+                .status(com.fredfmelo.orderservice.model.OrderStatus.CREATED);
     }
 
-    private void validateCustomerOrderLimite(UUID custumerId) {
+    private void validateDailyOrderLimit(UUID custumerId, Role role) {
+        if (role == Role.ADMIN) {
+            return;
+        }
+
         if (orderEntityRepository.countOrdersCreatedToday(custumerId) >= 5) {
             throw new BusinessException("You've exceeded the daily limit of orders placed (5)",
                     HttpStatus.TOO_MANY_REQUESTS.value());
@@ -64,7 +70,8 @@ public class OrderCommandService {
     }
 
     public void approvePayment(PaymentApprovedEvent event) {
-        OrderEntity order = orderEntityRepository.findByPk(event.orderId());
+        OrderEntity order = orderEntityRepository.findByPk(event.orderId())
+                .orElseThrow(() -> new BusinessException("Order not found", HttpStatus.NOT_FOUND.value()));
 
         order.setStatus(OrderStatus.PAYMENT_APRROVED);
 
@@ -72,7 +79,8 @@ public class OrderCommandService {
     }
 
     public void complete(InventoryReservedEvent event) {
-        OrderEntity order = orderEntityRepository.findByPk(event.orderId());
+        OrderEntity order = orderEntityRepository.findByPk(event.orderId())
+                .orElseThrow(() -> new BusinessException("Order not found", HttpStatus.NOT_FOUND.value()));
 
         order.setStatus(OrderStatus.COMPLETED);
 

@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
@@ -35,13 +36,13 @@ public class OrderEntityRepository {
         table().putItem(entity);
     }
 
-    public OrderEntity findByPk(String orderId) {
+    public Optional<OrderEntity> findByPk(String orderId) {
         Key key = Key.builder()
                 .partitionValue("ORDER#" + orderId)
-                .sortValue("METADATA")
+                .sortValue("METADATA")    
                 .build();
-
-        return table().getItem(key);
+    
+        return Optional.ofNullable(table().getItem(key));
     }
 
     public int countOrdersCreatedToday(UUID customerId) {
