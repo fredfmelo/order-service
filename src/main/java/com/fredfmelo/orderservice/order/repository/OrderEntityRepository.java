@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -70,6 +71,21 @@ public class OrderEntityRepository {
                 .flatMap(page -> page.items().stream())
                 .toList()
                 .size();
+    }
+
+    public List<OrderEntity> findByCustomerId(UUID customerId) {
+        DynamoDbIndex<OrderEntity> index =
+                table().index(OrderEntity.CUSTOMER_ORDERS_INDEX);
+    
+        QueryConditional query = QueryConditional.keyEqualTo(
+                Key.builder()
+                        .partitionValue(customerId.toString())
+                        .build());
+    
+        return index.query(r -> r.queryConditional(query))
+                .stream()
+                .flatMap(page -> page.items().stream())
+                .toList();
     }
 
 }

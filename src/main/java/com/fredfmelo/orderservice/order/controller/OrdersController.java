@@ -1,5 +1,6 @@
 package com.fredfmelo.orderservice.order.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
@@ -32,5 +33,9 @@ public class OrdersController implements OrderApi {
     public ResponseEntity<GetOrderResponse> getOrderById(UUID orderId){
         return ResponseEntity.ok(orderQueryService.getOrderById(orderId, userContext));
     }
-
+    
+    @Override
+    public ResponseEntity<List<GetOrderResponse>> getOrders(){
+        return ResponseEntity.ok(orderQueryService.getOrders(userContext));
+    }
 }
