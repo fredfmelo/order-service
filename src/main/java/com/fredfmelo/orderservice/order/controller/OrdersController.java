@@ -10,6 +10,7 @@ import com.fredfmelo.orderservice.api.OrderApi;
 import com.fredfmelo.orderservice.model.CreateOrderRequest;
 import com.fredfmelo.orderservice.model.CreateOrderResponse;
 import com.fredfmelo.orderservice.model.GetOrderResponse;
+import com.fredfmelo.orderservice.model.OrderStatusApi;
 import com.fredfmelo.orderservice.order.service.OrderCommandService;
 import com.fredfmelo.orderservice.order.service.OrderQueryService;
 import com.fredfmelo.orderservice.security.UserContext;
@@ -35,7 +36,7 @@ public class OrdersController implements OrderApi {
     }
     
     @Override
-    public ResponseEntity<List<GetOrderResponse>> getOrders(){
-        return ResponseEntity.ok(orderQueryService.getOrders(userContext));
+    public ResponseEntity<List<GetOrderResponse>> getOrders(OrderStatusApi orderStatus){
+        return ResponseEntity.ok(orderQueryService.getOrders(userContext, orderStatus));
     }
 }

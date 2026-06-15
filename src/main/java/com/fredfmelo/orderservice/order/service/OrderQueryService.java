@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.fredfmelo.eventdrivencore.exception.BusinessException;
 import com.fredfmelo.orderservice.model.GetOrderResponse;
+import com.fredfmelo.orderservice.model.OrderStatusApi;
 import com.fredfmelo.orderservice.order.domain.OrderEntity;
 import com.fredfmelo.orderservice.order.domain.OrderItemEntity;
 import com.fredfmelo.orderservice.order.mapper.OrderMapper;
@@ -41,13 +42,21 @@ public class OrderQueryService {
         return orderMapper.toResponse(orderfound, items);
     }
 
-    //TODO: solve N+1 problem in here
-    public List<GetOrderResponse> getOrders(UserContext userContext) {
+    // TODO: solve N+1 problem in here
+    public List<GetOrderResponse> getOrders(UserContext userContext, OrderStatusApi orderStatus) {
+
         List<OrderEntity> orders = orderEntityRepository.findByCustomerId(userContext.getUserId());
+
+        if (orderStatus != null) {
+            orders = orders.stream().filter(order -> order.getStatus().name().equals(orderStatus.getValue())).toList();
+        }
+
         return orders.stream()
                 .map(order -> {
                     String orderId = order.getPk().replace("ORDER#", "");
+
                     List<OrderItemEntity> items = orderItemEntityRepository.findByOrderId(orderId);
+
                     return orderMapper.toResponse(order, items);
                 })
                 .toList();

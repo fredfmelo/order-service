@@ -37,6 +37,13 @@ paths:
       summary: Get all orders of the authenticated user
       operationId: getOrders
 
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/OrderStatusApi'
+
       responses:
         '200':
           description: Orders found
@@ -115,7 +122,7 @@ components:
           type: string
 
         status:
-          $ref: '#/components/schemas/OrderStatus'
+          $ref: '#/components/schemas/OrderStatusApi'
 
     GetOrderResponse:
       type: object
@@ -129,7 +136,7 @@ components:
           format: uuid
 
         status:
-          $ref: '#/components/schemas/OrderStatus'
+          $ref: '#/components/schemas/OrderStatusApi'
 
         createdAt:
           type: string
@@ -141,7 +148,7 @@ components:
           items:
             $ref: '#/components/schemas/OrderItem'
 
-    OrderStatus:
+    OrderStatusApi:
       type: string
 
       enum:

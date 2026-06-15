@@ -14,6 +14,7 @@ import com.fredfmelo.eventdrivencore.outbox.service.OutboxService;
 import com.fredfmelo.orderservice.model.CreateOrderRequest;
 import com.fredfmelo.orderservice.model.CreateOrderResponse;
 import com.fredfmelo.orderservice.model.OrderItem;
+import com.fredfmelo.orderservice.model.OrderStatusApi;
 import com.fredfmelo.orderservice.order.domain.OrderEntity;
 import com.fredfmelo.orderservice.order.domain.OrderItemEntity;
 import com.fredfmelo.orderservice.order.domain.OrderStatus;
@@ -55,7 +56,7 @@ public class OrderCommandService {
         transactionRepository.save(order, items, outbox);
         return new CreateOrderResponse()
                 .orderId(order.getPk())
-                .status(com.fredfmelo.orderservice.model.OrderStatus.CREATED);
+                .status(OrderStatusApi.CREATED);
     }
 
     private void validateDailyOrderLimit(UUID custumerId, Role role) {
