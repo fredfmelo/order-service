@@ -23,6 +23,7 @@ public class OrderEntity {
 
     private UUID customerId;
     private OrderStatus status;
+    private PaymentStatus paymentStatus;
     private Instant createdAt;
 
     @DynamoDbPartitionKey

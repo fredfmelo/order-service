@@ -10,8 +10,10 @@ import org.mapstruct.Mapping;
 
 import com.fredfmelo.orderservice.model.GetOrderResponse;
 import com.fredfmelo.orderservice.model.OrderItem;
+import com.fredfmelo.orderservice.model.PaymentStatusApi;
 import com.fredfmelo.orderservice.order.domain.OrderEntity;
 import com.fredfmelo.orderservice.order.domain.OrderItemEntity;
+import com.fredfmelo.orderservice.order.domain.PaymentStatus;
 
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
@@ -23,6 +25,8 @@ public interface OrderMapper {
             List<OrderItemEntity> items);
 
     OrderItem toOrderItem(OrderItemEntity item);
+
+    PaymentStatusApi map(PaymentStatus paymentStatus);
 
     default OffsetDateTime map(Instant instant) {
         return instant == null

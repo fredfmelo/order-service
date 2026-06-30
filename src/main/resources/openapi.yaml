@@ -124,6 +124,9 @@ components:
         status:
           $ref: '#/components/schemas/OrderStatusApi'
 
+        paymentStatus:
+          $ref: '#/components/schemas/PaymentStatusApi'
+
     GetOrderResponse:
       type: object
 
@@ -137,6 +140,9 @@ components:
 
         status:
           $ref: '#/components/schemas/OrderStatusApi'
+
+        paymentStatus:
+          $ref: '#/components/schemas/PaymentStatusApi'
 
         createdAt:
           type: string
@@ -156,3 +162,12 @@ components:
         - PAYMENT_PENDING
         - PAYMENT_APRROVED
         - COMPLETED
+        - FAILED
+
+    PaymentStatusApi:
+      type: string
+
+      enum:
+        - PENDING
+        - PAID
+        - REFUNDED

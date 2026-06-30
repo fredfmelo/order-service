@@ -15,14 +15,18 @@ import com.fredfmelo.orderservice.model.CreateOrderRequest;
 import com.fredfmelo.orderservice.model.CreateOrderResponse;
 import com.fredfmelo.orderservice.model.OrderItem;
 import com.fredfmelo.orderservice.model.OrderStatusApi;
+import com.fredfmelo.orderservice.model.PaymentStatusApi;
 import com.fredfmelo.orderservice.order.domain.OrderEntity;
 import com.fredfmelo.orderservice.order.domain.OrderItemEntity;
 import com.fredfmelo.orderservice.order.domain.OrderStatus;
+import com.fredfmelo.orderservice.order.domain.PaymentStatus;
 import com.fredfmelo.orderservice.order.domain.Role;
 import com.fredfmelo.orderservice.order.event.InventoryReservedEvent;
+import com.fredfmelo.orderservice.order.event.InventoryUnavailableEvent;
 import com.fredfmelo.orderservice.order.event.OrderCreatedEvent;
 import com.fredfmelo.orderservice.order.event.OrderItemEvent;
 import com.fredfmelo.orderservice.order.event.PaymentApprovedEvent;
+import com.fredfmelo.orderservice.order.event.PaymentRefundedEvent;
 import com.fredfmelo.orderservice.order.repository.OrderEntityRepository;
 import com.fredfmelo.orderservice.order.repository.OrderTransactionRepository;
 import com.fredfmelo.orderservice.security.UserContext;
@@ -56,7 +60,8 @@ public class OrderCommandService {
         transactionRepository.save(order, items, outbox);
         return new CreateOrderResponse()
                 .orderId(order.getPk())
-                .status(OrderStatusApi.CREATED);
+                .status(OrderStatusApi.CREATED)
+                .paymentStatus(PaymentStatusApi.PENDING);
     }
 
     private void validateDailyOrderLimit(UUID custumerId, Role role) {
@@ -75,6 +80,16 @@ public class OrderCommandService {
                 .orElseThrow(() -> new BusinessException("Order not found", HttpStatus.NOT_FOUND.value()));
 
         order.setStatus(OrderStatus.PAYMENT_APRROVED);
+        order.setPaymentStatus(PaymentStatus.PAID);
+
+        orderEntityRepository.save(order);
+    }
+
+    public void refundPayment(PaymentRefundedEvent event) {
+        OrderEntity order = orderEntityRepository.findByPk(event.orderId())
+                .orElseThrow(() -> new BusinessException("Order not found", HttpStatus.NOT_FOUND.value()));
+
+        order.setPaymentStatus(PaymentStatus.REFUNDED);
 
         orderEntityRepository.save(order);
     }
@@ -88,12 +103,22 @@ public class OrderCommandService {
         orderEntityRepository.save(order);
     }
 
+    public void failOrder(InventoryUnavailableEvent event) {
+        OrderEntity order = orderEntityRepository.findByPk(event.orderId())
+                .orElseThrow(() -> new BusinessException("Order not found", HttpStatus.NOT_FOUND.value()));
+
+        order.setStatus(OrderStatus.FAILED);
+
+        orderEntityRepository.save(order);
+    }
+
     private OrderEntity buildOrder(UUID userId) {
         OrderEntity order = new OrderEntity();
 
         order.setPk("ORDER#" + UUID.randomUUID());
         order.setSk("METADATA");
         order.setStatus(OrderStatus.CREATED);
+        order.setPaymentStatus(PaymentStatus.PENDING);
         order.setCustomerId(userId);
         order.setCreatedAt(Instant.now());
 
